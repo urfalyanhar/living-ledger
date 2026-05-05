@@ -252,6 +252,94 @@ main {
   .section-head h2 { font-size: 28px; }
   .panel { padding: 18px; }
 }
+
+/* ====== MOBILE-FIRST RESPONSIVE — comprehensive phone view ====== */
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .masthead { padding: 14px 14px 10px; position: relative; top: auto; }
+  .masthead-inner { gap: 12px; align-items: stretch; }
+  .brand h1 { font-size: 24px; line-height: 1.1; }
+  .brand .sub { font-size: 11px; }
+  .tools {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    width: 100%; justify-content: flex-start;
+  }
+  .tools .btn {
+    padding: 8px 12px; font-size: 12px;
+    flex: 1 1 auto; min-width: max-content;
+  }
+  .sync-status {
+    padding: 6px 10px; font-size: 10px;
+    flex: 1 1 100%; text-align: center; margin: 0 0 4px;
+  }
+  nav.tabs { top: 0; padding: 0; }
+  .tabs-inner { padding: 0 8px; }
+  .tab { font-size: 14px; padding: 10px 12px; }
+  main { padding: 12px 10px 24px; }
+  .panel { padding: 14px; margin-bottom: 14px; }
+  .panel h3 { font-size: 16px; }
+  h2, .section-head h2 { font-size: 22px; }
+  h4 { font-size: 13px; margin: 16px 0 8px; }
+  .desc { font-size: 13px; }
+  .section-head { flex-direction: column; align-items: stretch; gap: 10px; }
+  .section-head .actions { width: 100%; flex-wrap: wrap; }
+  .section-head .actions .btn { flex: 1 1 auto; }
+  .stat { padding: 12px 14px; }
+  .stat .value { font-size: 22px; }
+  .stat .label { font-size: 10px; }
+  .stat .sub { font-size: 11px; }
+  /* Tables — keep horizontal scroll, but make rows tappable */
+  table { font-size: 12px; }
+  table th, table td { padding: 8px 6px; }
+  /* Inline-edit fields easier to tap */
+  .editable { min-height: 32px; padding: 4px 6px; }
+  input, select, textarea { font-size: 16px; } /* prevents iOS auto-zoom on focus */
+  .btn { min-height: 38px; padding: 8px 14px; }
+  .btn.tiny { min-height: 30px; padding: 4px 10px; font-size: 11px; }
+  /* Spending summary stays 2-col on phone */
+  .spending-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .spending-summary > div { padding: 6px; }
+  .spending-summary .lbl { font-size: 9px; }
+  .spending-summary .val { font-size: 14px; }
+  /* Leftover grid stacks fully */
+  .leftover-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    text-align: center;
+  }
+  .leftover-grid > div { padding: 8px 0; }
+  .leftover-grid .lo-op { font-size: 18px; padding: 0; }
+  .leftover-grid .lo-value { font-size: 18px; }
+  .leftover-grid .lo-result { padding: 12px; }
+  /* Wedding expense cards: 1 col on phone */
+  .wedding-expense-grid { grid-template-columns: 1fr; gap: 10px; }
+  .wexp-card { padding: 12px 14px; }
+  .wexp-label { font-size: 16px; }
+  .wexp-cost { font-size: 15px; }
+  .wexp-actions { opacity: 1; position: static; margin-top: 8px; justify-content: flex-end; }
+  /* Timeline color legend stacks */
+  .timeline-legend-grid { grid-template-columns: 1fr; }
+  /* Modal */
+  .modal { max-width: calc(100vw - 24px); padding: 16px; }
+  /* Notes blocks */
+  .note-block { font-size: 11px; padding: 6px 8px; }
+  /* Pill selects */
+  .editable.pill { padding: 4px 8px; font-size: 11px; }
+  /* Foot note */
+  .foot-note { padding: 14px; font-size: 11px; }
+  /* Sign-in card */
+  .passcode-card { padding: 28px 22px; max-width: calc(100vw - 32px); }
+  .passcode-brand h1 { font-size: 26px; }
+  .passcode-card input { font-size: 16px; }
+}
+
+/* Extra-tight squeeze on small phones */
+@media (max-width: 380px) {
+  .brand h1 { font-size: 21px; }
+  .stat .value { font-size: 19px; }
+  .tab { font-size: 13px; padding: 9px 9px; }
+  table th, table td { padding: 6px 4px; }
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -1138,18 +1226,20 @@ details.month-group > summary .summary-title { font-size: 20px; font-style: ital
 </head>
 <body>
 
-<!-- Passcode gate overlay — shown until correct passcode entered -->
-<div id="passcodeGate" class="passcode-gate">
+<!-- Sign-in gate overlay — shown until user is authenticated -->
+<div id="signInGate" class="passcode-gate">
   <div class="passcode-card">
     <div class="passcode-brand">
       <h1>Har <em>&amp;</em> Lily</h1>
       <div class="passcode-sub"><em>The Living Ledger</em></div>
     </div>
-    <form id="passcodeForm" autocomplete="off" onsubmit="return submitPasscode(event)">
-      <label for="passcodeInput">Passcode</label>
-      <input type="password" id="passcodeInput" autocomplete="off" autofocus required>
-      <button type="submit" class="btn primary passcode-btn">Enter</button>
-      <div id="passcodeError" class="passcode-error" aria-live="polite"></div>
+    <form id="signInForm" autocomplete="on" onsubmit="return submitSignIn(event)">
+      <label for="signInEmail">Email</label>
+      <input type="email" id="signInEmail" autocomplete="email" required>
+      <label for="signInPassword">Password</label>
+      <input type="password" id="signInPassword" autocomplete="current-password" required>
+      <button type="submit" class="btn primary passcode-btn">Sign In</button>
+      <div id="signInError" class="passcode-error" aria-live="polite"></div>
     </form>
   </div>
 </div>
@@ -1178,7 +1268,14 @@ details.month-group > summary .summary-title { font-size: 20px; font-style: ital
 <!-- Firebase SDK (loaded from Google's CDN as ES modules) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    setPersistence,
+    browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1194,16 +1291,20 @@ details.month-group > summary .summary-title { font-size: 20px; font-style: ital
   const auth = getAuth(app);
   const fdb = getFirestore(app);
 
+  // Persist auth across browser sessions on this device (until explicit sign-out)
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn('Could not set local persistence:', err);
+  });
+
   // Expose to non-module app code
   window.__firebase = {
     app, auth, fdb,
-    signInAnonymously: () => signInAnonymously(auth),
+    signInWithEmailAndPassword: (email, password) => signInWithEmailAndPassword(auth, email, password),
     onAuthStateChanged: (cb) => onAuthStateChanged(auth, cb),
     signOut: () => signOut(auth),
     docRef: () => doc(fdb, 'shared', 'ledger'),
     setDoc, onSnapshot, serverTimestamp,
   };
-  // Tell the app it's ready
   window.dispatchEvent(new CustomEvent('firebase-ready'));
 </script>
 
@@ -1212,70 +1313,74 @@ details.month-group > summary .summary-title { font-size: 20px; font-style: ital
 'use strict';
 
 // =================================================================
-// PASSCODE GATE & FIREBASE SYNC
+// AUTHENTICATION (email/password) & FIREBASE SYNC
 // =================================================================
-const PASSCODE = 'Love@0905'; // Change here if you ever want to rotate it
-const PASSCODE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-const PASSCODE_KEY = 'harlily_passcode_ok_until';
-let _passcodeAttempts = 0;
-let _passcodeLockUntil = 0;
+let _signInAttempts = 0;
+let _signInLockUntil = 0;
+let _currentUser = null;
 
-function isPasscodeStillValid() {
-  try {
-    const until = Number(localStorage.getItem(PASSCODE_KEY) || 0);
-    return until > Date.now();
-  } catch (e) {
-    return false;
-  }
-}
-
-function markPasscodePassed() {
-  try {
-    localStorage.setItem(PASSCODE_KEY, String(Date.now() + PASSCODE_TTL_MS));
-  } catch (e) {}
-}
-
-function clearPasscode() {
-  try { localStorage.removeItem(PASSCODE_KEY); } catch (e) {}
-}
-
-function submitPasscode(e) {
+function submitSignIn(e) {
   e.preventDefault();
   const now = Date.now();
-  const errEl = document.getElementById('passcodeError');
-  if (now < _passcodeLockUntil) {
-    const secs = Math.ceil((_passcodeLockUntil - now) / 1000);
-    errEl.textContent = `Too many attempts — try again in ${secs}s.`;
+  const errEl = document.getElementById('signInError');
+  if (now < _signInLockUntil) {
+    const secs = Math.ceil((_signInLockUntil - now) / 1000);
+    errEl.textContent = `Too many failed attempts — try again in ${secs}s.`;
     return false;
   }
-  const input = document.getElementById('passcodeInput');
-  const value = input.value;
-  if (value === PASSCODE) {
-    markPasscodePassed();
-    document.getElementById('passcodeGate').classList.add('hidden');
-    bootApp();
-  } else {
-    _passcodeAttempts++;
-    input.value = '';
-    if (_passcodeAttempts >= 3) {
-      _passcodeLockUntil = now + 30000;
-      _passcodeAttempts = 0;
-      errEl.textContent = 'Too many attempts — try again in 30 seconds.';
-    } else {
-      errEl.textContent = `Incorrect passcode (${3 - _passcodeAttempts} attempt${3-_passcodeAttempts===1?'':'s'} left).`;
-    }
+  if (!window.__firebase) {
+    errEl.textContent = 'Connecting to authentication… try again in a moment.';
+    return false;
   }
+  const email = document.getElementById('signInEmail').value.trim();
+  const password = document.getElementById('signInPassword').value;
+  if (!email || !password) {
+    errEl.textContent = 'Email and password required.';
+    return false;
+  }
+  errEl.textContent = 'Signing in…';
+  const submitBtn = document.querySelector('#signInForm button[type=submit]');
+  submitBtn.disabled = true;
+  window.__firebase.signInWithEmailAndPassword(email, password)
+    .then((cred) => {
+      _currentUser = cred.user;
+      _signInAttempts = 0;
+      document.getElementById('signInGate').classList.add('hidden');
+      bootApp();
+    })
+    .catch((err) => {
+      _signInAttempts++;
+      submitBtn.disabled = false;
+      document.getElementById('signInPassword').value = '';
+      let msg = 'Sign-in failed.';
+      const code = err && err.code;
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found' || code === 'auth/invalid-email') {
+        msg = 'Incorrect email or password.';
+      } else if (code === 'auth/network-request-failed') {
+        msg = 'No internet connection.';
+      } else if (code === 'auth/too-many-requests') {
+        msg = 'Too many failed attempts — Firebase has temporarily locked this account. Try again in a few minutes.';
+      } else if (err && err.message) {
+        msg = err.message;
+      }
+      if (_signInAttempts >= 5) {
+        _signInLockUntil = Date.now() + 60000;
+        _signInAttempts = 0;
+        errEl.textContent = 'Too many failed attempts — try again in 60 seconds.';
+      } else {
+        errEl.textContent = msg;
+      }
+    });
   return false;
 }
 
 function signOutAndLock() {
-  if (!confirm('Lock the app and sign out? Your data is already saved — this just locks the screen.')) return;
-  clearPasscode();
+  if (!confirm('Sign out? Your data is already saved — this just locks the screen on this device.')) return;
   if (window.__firebase) {
     window.__firebase.signOut().catch(() => {});
   }
   if (_unsubFirestore) { _unsubFirestore(); _unsubFirestore = null; }
-  // Reload to redisplay the gate cleanly
+  _currentUser = null;
   location.reload();
 }
 
@@ -1344,12 +1449,12 @@ async function initFirebaseSync() {
   }
   const fb = window.__firebase;
   setSyncStatus('pending', '● Connecting…');
-  try {
-    await fb.signInAnonymously();
-  } catch (err) {
-    console.error('Anonymous sign-in failed:', err);
-    setSyncStatus('local', '● Local only');
-    toast('Could not connect to sync — working offline', 'error');
+  // User should already be signed in by this point (sign-in happened in submitSignIn or via persistence)
+  if (!_currentUser && fb.auth.currentUser) {
+    _currentUser = fb.auth.currentUser;
+  }
+  if (!_currentUser) {
+    setSyncStatus('local', '● Not signed in');
     return;
   }
   // Listen for remote changes
@@ -1400,7 +1505,7 @@ function ensureDbDefaults() {
 // =================================================================
 // STATE & PERSISTENCE
 // =================================================================
-const STORAGE_KEY = 'harlily_ledger_v4';
+const STORAGE_KEY = 'harlily_ledger_v4_1';
 const SEED = JSON.parse(document.getElementById('seedData').textContent);
 
 let db;
@@ -1466,13 +1571,27 @@ function waitForFirebase() {
   }, 200);
 }
 
-// On page load, decide whether to show the gate or boot directly
+// On page load, check if user is already signed in (Firebase persists session)
 window.addEventListener('DOMContentLoaded', () => {
-  if (isPasscodeStillValid()) {
-    document.getElementById('passcodeGate').classList.add('hidden');
-    bootApp();
-  }
-  // else: gate is shown, user must enter passcode
+  // Wait for firebase to be ready, then check auth state
+  const checkAuth = () => {
+    if (!window.__firebase) {
+      // Firebase didn't load — show sign-in form anyway, will fail until ready
+      return;
+    }
+    window.__firebase.onAuthStateChanged((user) => {
+      if (user) {
+        _currentUser = user;
+        document.getElementById('signInGate').classList.add('hidden');
+        bootApp();
+      } else {
+        // No signed-in user — show the sign-in form (already visible by default)
+        document.getElementById('signInGate').classList.remove('hidden');
+      }
+    });
+  };
+  if (window.__firebase) checkAuth();
+  else window.addEventListener('firebase-ready', checkAuth, { once: true });
 });
 
 // =================================================================
@@ -2203,12 +2322,15 @@ function computeBudgetTotals(blk) {
   const combinedCardPayments = lilyCardsPay + harutCardsPay;
   const finalLeftover = leftover - combinedCardPayments;
 
-  // Final Net Worth = Combined Net Worth − Payments Total
-  // (Card payments don't change net worth: they reduce cash AND reduce debt by the same amount.
-  // Only "Payments & Other Costs" — mortgage, life insurance — are true net-worth reductions.)
-  const lilyFinal = lilyNet - (paymentsTotal / 2);   // halved by convention; user can adjust
-  const harutFinal = harutNet - (paymentsTotal / 2);
-  const combinedFinal = combinedNet - paymentsTotal;
+  // Final Net Worth (per user's spec):
+  // Each person's cash amount AFTER credit card payments, minus their credit card
+  // balances AFTER payments. The joint "Payments & Other Costs" are NOT subtracted
+  // here — they're already accounted for in the Leftover calculation, and they
+  // represent money flowing OUT of cash but they also represent obligations met,
+  // so they don't affect net worth (the cash leaves, but the obligation is settled).
+  const lilyFinal = (lilySav - lilyCardsPay) - lilyCardsAfter;
+  const harutFinal = (harutSav - harutCardsPay) - harutCardsAfter;
+  const combinedFinal = lilyFinal + harutFinal;
 
   // Combined cash after all payments are made (card payments + Payments & Other Costs)
   // come out of the cash pool.
@@ -2339,9 +2461,9 @@ function renderBudgetBlock(blk, idx, calc, isOpen) {
         </div>
 
         <div class="grid-3" style="margin-top: 16px;">
-          <div class="stat"><div class="label">Lily — Final Net Worth</div><div class="value ${calc.lilyFinal>=0?'pos':'neg'}">${fmt$0(calc.lilyFinal)}</div><div class="sub">net worth − ½ payments</div></div>
-          <div class="stat"><div class="label">Harut — Final Net Worth</div><div class="value ${calc.harutFinal>=0?'pos':'neg'}">${fmt$0(calc.harutFinal)}</div><div class="sub">net worth − ½ payments</div></div>
-          <div class="stat" style="background:var(--paper-deep); border-color: var(--ink);"><div class="label">Combined Final Net Worth</div><div class="value ${calc.combinedFinal>=0?'pos':'neg'}">${fmt$0(calc.combinedFinal)}</div><div class="sub">combined net − payments total</div></div>
+          <div class="stat"><div class="label">Lily — Final Net Worth</div><div class="value ${calc.lilyFinal>=0?'pos':'neg'}">${fmt$0(calc.lilyFinal)}</div><div class="sub">cash after card payment − cards after payment</div></div>
+          <div class="stat"><div class="label">Harut — Final Net Worth</div><div class="value ${calc.harutFinal>=0?'pos':'neg'}">${fmt$0(calc.harutFinal)}</div><div class="sub">cash after card payment − cards after payment</div></div>
+          <div class="stat" style="background:var(--paper-deep); border-color: var(--ink);"><div class="label">Combined Final Net Worth</div><div class="value ${calc.combinedFinal>=0?'pos':'neg'}">${fmt$0(calc.combinedFinal)}</div><div class="sub">Lily Final + Harut Final</div></div>
         </div>
 
         <div class="grid-2" style="margin-top: 8px;">
@@ -3534,6 +3656,7 @@ function spendingMonthTotal(s) {
 
 function computeTimelineRows(t, key, snapshots, latestActual, carryover, earningsByMonth, spendingByMonth) {
   if (!t || !t.months) return [];
+  const LILY_FIXED_MONTHLY_INCOME = 3350; // Lily's fixed monthly income — added to earnings auto-pull
   const rows = [];
   let cumulative = (carryover === null || carryover === undefined) ? 0 : carryover;
   let firstRow = (carryover === null || carryover === undefined);
@@ -3542,8 +3665,14 @@ function computeTimelineRows(t, key, snapshots, latestActual, carryover, earning
     const ym = m.iso_month;
     const isActual = ym && !!snapshots[ym];
 
+    // For actual months: pull income from Earnings tab + Lily's fixed monthly,
+    // and pull expenses from Spending tab. Mortgage is shown separately so the
+    // user sees both columns; we add it into the Net total via the mortgageTotal var.
     let incomeAuto = 0, expensesAuto = 0;
-    if (isActual && earningsByMonth[ym] !== undefined) incomeAuto = earningsByMonth[ym];
+    if (isActual) {
+      const harutEarnings = (earningsByMonth[ym] !== undefined) ? earningsByMonth[ym] : 0;
+      incomeAuto = harutEarnings + LILY_FIXED_MONTHLY_INCOME;
+    }
     if (isActual && spendingByMonth[ym]) expensesAuto = spendingMonthTotal(spendingByMonth[ym]);
 
     const manualIncome = Number(m.income) || 0;
@@ -3552,7 +3681,10 @@ function computeTimelineRows(t, key, snapshots, latestActual, carryover, earning
     const extraIncome = (m.extra_income || []).reduce((s,x) => s + (Number(x.amount)||0), 0);
     const extraExpenses = (m.extra_expenses || []).reduce((s,x) => s + (Number(x.amount)||0), 0);
 
+    // Income column total (positive)
     const incomeTotal = (isActual ? incomeAuto : manualIncome) + extraIncome;
+    // Expenses column total (negative). For actual months, expensesAuto is positive
+    // so we negate it. Mortgage is NEGATIVE already (it's stored as a negative value).
     const expensesTotal = (isActual ? -expensesAuto : manualExpenses) - extraExpenses;
     const mortgageTotal = Number(m.mortgage) || 0;
 
@@ -3612,7 +3744,7 @@ function renderTimelineTable(title, rows, key) {
               `<option value="${escAttr(ck)}" ${r.colorKey === ck ? 'selected' : ''}>${escHTML(colors[ck].label)}</option>`
             ).join('');
             const incomeCell = r.isActual
-              ? `<div class="tl-auto"><div class="tl-auto-val">${fmt$0(r.incomeAuto)}</div><div class="tl-auto-sub">from Earnings</div></div>`
+              ? `<div class="tl-auto"><div class="tl-auto-val">${fmt$0(r.incomeAuto)}</div><div class="tl-auto-sub">Earnings + Lily $3,350</div></div>`
               : inlineNum(`${key}.months.${i}.income`, m.income);
             const expensesCell = r.isActual
               ? `<div class="tl-auto"><div class="tl-auto-val">${fmt$0(-r.expensesAuto)}</div><div class="tl-auto-sub">from Spending</div></div>`
