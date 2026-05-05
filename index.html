@@ -301,6 +301,49 @@ main {
   .spending-summary > div { padding: 6px; }
   .spending-summary .lbl { font-size: 9px; }
   .spending-summary .val { font-size: 14px; }
+  /* Earnings/Spending day-grid: stack vertically with day labels on each row */
+  .day-grid {
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--rule-soft);
+  }
+  .day-grid .head { display: none; }
+  .day-grid > div[data-day] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    background: var(--paper);
+  }
+  .day-grid > div[data-day]::before {
+    content: attr(data-day);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .day-grid > div[data-day] input.editable {
+    text-align: right;
+    width: auto;
+    flex: 1;
+    font-size: 15px;
+    padding: 6px 8px;
+  }
+  .day-grid .total-cell {
+    background: var(--paper-deep) !important;
+    font-size: 16px;
+    padding: 12px;
+  }
+  .day-grid .total-cell::before {
+    color: var(--ink) !important;
+    font-weight: 700;
+  }
   /* Leftover grid stacks fully */
   .leftover-grid {
     grid-template-columns: 1fr;
@@ -1505,7 +1548,7 @@ function ensureDbDefaults() {
 // =================================================================
 // STATE & PERSISTENCE
 // =================================================================
-const STORAGE_KEY = 'harlily_ledger_v4_1';
+const STORAGE_KEY = 'harlily_ledger_v4_2';
 const SEED = JSON.parse(document.getElementById('seedData').textContent);
 
 let db;
@@ -2057,8 +2100,8 @@ function renderTimeData(kind) {
             </div>
             <div class="day-grid">
               ${DAYS_SHORT.map(d => `<div class="head">${d}</div>`).join('')}<div class="head">Total</div>
-              ${DAYS.map(d => `<div>${inlineNum(`${wKey}.${wIdx}.days.${d}`, w.days[d])}</div>`).join('')}
-              <div class="total-cell">${fmt$(wTotal)}</div>
+              ${DAYS.map((d, di) => `<div data-day="${DAYS_SHORT[di]}">${inlineNum(`${wKey}.${wIdx}.days.${d}`, w.days[d])}</div>`).join('')}
+              <div class="total-cell" data-day="Total">${fmt$(wTotal)}</div>
             </div>
             ${w.note ? `<div class="note-block"><strong>Note ·</strong> ${escHTML(w.note)}</div>` : ''}
           </div>`;
@@ -2322,15 +2365,17 @@ function computeBudgetTotals(blk) {
   const combinedCardPayments = lilyCardsPay + harutCardsPay;
   const finalLeftover = leftover - combinedCardPayments;
 
-  // Final Net Worth (per user's spec):
-  // Each person's cash amount AFTER credit card payments, minus their credit card
-  // balances AFTER payments. The joint "Payments & Other Costs" are NOT subtracted
-  // here — they're already accounted for in the Leftover calculation, and they
-  // represent money flowing OUT of cash but they also represent obligations met,
-  // so they don't affect net worth (the cash leaves, but the obligation is settled).
-  const lilyFinal = (lilySav - lilyCardsPay) - lilyCardsAfter;
-  const harutFinal = (harutSav - harutCardsPay) - harutCardsAfter;
-  const combinedFinal = lilyFinal + harutFinal;
+  // Final Net Worth (Option 3 per user choice):
+  // - Per person: equals plain Net Worth, since `(cash − card_payments) − cards_after`
+  //   algebraically reduces to `cash − cards_balance` = Net Worth.
+  //   (Card payments cancel: cash down by X, debt down by X.)
+  // - Combined: Combined Net Worth minus joint Payments & Other Costs total.
+  //   This reflects mortgage, life insurance, etc. as true net-worth reductions.
+  // Per-person allocation of joint payments isn't computed automatically — that's
+  // a manual call between Lily and Harut and varies snapshot to snapshot.
+  const lilyFinal = lilyNet;
+  const harutFinal = harutNet;
+  const combinedFinal = combinedNet - paymentsTotal;
 
   // Combined cash after all payments are made (card payments + Payments & Other Costs)
   // come out of the cash pool.
@@ -2461,9 +2506,9 @@ function renderBudgetBlock(blk, idx, calc, isOpen) {
         </div>
 
         <div class="grid-3" style="margin-top: 16px;">
-          <div class="stat"><div class="label">Lily — Final Net Worth</div><div class="value ${calc.lilyFinal>=0?'pos':'neg'}">${fmt$0(calc.lilyFinal)}</div><div class="sub">cash after card payment − cards after payment</div></div>
-          <div class="stat"><div class="label">Harut — Final Net Worth</div><div class="value ${calc.harutFinal>=0?'pos':'neg'}">${fmt$0(calc.harutFinal)}</div><div class="sub">cash after card payment − cards after payment</div></div>
-          <div class="stat" style="background:var(--paper-deep); border-color: var(--ink);"><div class="label">Combined Final Net Worth</div><div class="value ${calc.combinedFinal>=0?'pos':'neg'}">${fmt$0(calc.combinedFinal)}</div><div class="sub">Lily Final + Harut Final</div></div>
+          <div class="stat"><div class="label">Lily — Final Net Worth</div><div class="value ${calc.lilyFinal>=0?'pos':'neg'}">${fmt$0(calc.lilyFinal)}</div><div class="sub">cash − card balances</div></div>
+          <div class="stat"><div class="label">Harut — Final Net Worth</div><div class="value ${calc.harutFinal>=0?'pos':'neg'}">${fmt$0(calc.harutFinal)}</div><div class="sub">cash − card balances</div></div>
+          <div class="stat" style="background:var(--paper-deep); border-color: var(--ink);"><div class="label">Combined Final Net Worth</div><div class="value ${calc.combinedFinal>=0?'pos':'neg'}">${fmt$0(calc.combinedFinal)}</div><div class="sub">combined net − joint payments</div></div>
         </div>
 
         <div class="grid-2" style="margin-top: 8px;">
